@@ -17,7 +17,7 @@ before_script:
   - cp ./.ci-scripts/gradlew.ci ./gradlew
   - cp ./.ci-scripts/settings.gradle.ci ./settings.gradle
   - cp ./.ci-scripts/app-build.gradle.ci ./app/build.gradle
-  - cp ./.ci-scripts/AndroidManifest.xml.ci ./app/src/main/
+  - cp ./.ci-scripts/AndroidManifest.xml.ci ./app/src/main/AndroidManifest.xml
   - cp -r ./.ci-scripts/gradle ./
   #- cp -r ./.ci-scripts/ ./app/libs
   #- cp -r ./.ci-scripts/androidTest ./app/src/
