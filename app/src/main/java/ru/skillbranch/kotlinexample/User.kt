@@ -33,9 +33,9 @@ class User private constructor(
     private var _login: String? = null
     internal var login: String
         set(value) {
-            login = value?.toLowerCase()
+            _login = value?.toLowerCase()
         }
-        get() = login!!
+        get() = _login!!
 
     private val salt:String by lazy {
         ByteArray(16).also { SecureRandom().nextBytes(it) }.toString()
@@ -62,10 +62,7 @@ class User private constructor(
         rawPhone: String
     ): this(firstName, lastName, rawPhone = rawPhone, meta = mapOf("auth" to "sms")) {
         println("Secondary phone constructor")
-        val code = generateAccessCode()
-        passwoedHash = encrypt(code)
-        accessCode = code
-        sendAccessCodeToUser(rawPhone, code)
+        requestAccessCode()
     }
 
     init {
@@ -75,6 +72,9 @@ class User private constructor(
         check(email.isNullOrBlank() || rawPhone.isNullOrBlank()) { "Email or phone must be not blank" }
 
         phone = rawPhone
+        if (phone != null && phone?.length != 12 ) {
+            throw IllegalArgumentException("Enter a valid phone number starting with a + and containing 11 digits")
+        }
         login = email  ?: phone!!
 
         userInfo = """
@@ -94,6 +94,13 @@ class User private constructor(
     fun changePassword(oldPass:String, newPass:String) {
         if (checkPassword(oldPass)) passwoedHash = encrypt(newPass)
         else throw IllegalArgumentException("Thr entered password dos not mach the current password")
+    }
+
+    fun requestAccessCode() {
+        val code = generateAccessCode()
+        passwoedHash = encrypt(code)
+        accessCode = code
+        sendAccessCodeToUser(phone, code)
     }
 
     private fun encrypt(password: String):String  = salt.plus(password).md5()
