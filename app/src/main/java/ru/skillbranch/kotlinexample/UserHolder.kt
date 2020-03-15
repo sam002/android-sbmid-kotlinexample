@@ -53,23 +53,29 @@ object UserHolder {
         val resultStrings = emptyList<String>().toMutableList()
         list.forEach {nodeString ->
             nodeString.split(";")
-                .filter { it.isNotBlank() }
                 .apply {
-                    val (salt, pass) = this[2].split(':')
+                    var password:String? = null
+                    var salt:String? = null
+                    this.getOrNull(2)?.split(":".toRegex()).let {
+                        salt = first()
+                        password = last()
+                    }
                     val userMap = hashMapOf(
-                        "fullName" to this[0],
-                        "email" to this[1],
-                        "password" to pass,
-                        "salt" to salt,
-                        "phone" to this[3]
+                        "fullName" to this.getOrNull(0),
+                        "email" to this.getOrNull(1),
+                        "phone" to this.getOrNull(3)
                     )
 
+                    val fullName:String? = if(userMap["fullName"].isNullOrEmpty()) null else userMap["fullName"]
+                    val email:String? = if(userMap["email"].isNullOrEmpty()) null else userMap["email"]
+                    val phone:String? = if(userMap["phone"].isNullOrEmpty()) null else userMap["phone"]
+
                     val impordedUser = User.importUser(
-                        userMap["fullName"]!!,
-                        userMap["email"]!!,
-                        userMap["password"]!!,
-                        userMap["salt"]!!,
-                        userMap["phone"]!!
+                        fullName,
+                        email,
+                        password,
+                        salt,
+                        phone
                     )
 
                     map[impordedUser.login] = impordedUser
