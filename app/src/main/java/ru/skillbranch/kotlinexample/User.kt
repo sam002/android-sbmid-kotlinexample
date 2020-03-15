@@ -6,6 +6,8 @@ import java.lang.StringBuilder
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.util.*
+import kotlin.reflect.KProperty
 
 class User private constructor(
     private val firstName:String,
@@ -33,15 +35,18 @@ class User private constructor(
     private var _login: String? = null
     internal var login: String
         set(value) {
-            _login = value?.toLowerCase()
+            _login = value.toLowerCase(Locale.ROOT)
         }
         get() = _login!!
 
-    private val salt:String by lazy {
+    private val _salt:String by lazy {
         ByteArray(16).also { SecureRandom().nextBytes(it) }.toString()
     }
 
-    private lateinit var passwoedHash: String
+    private var salt: String? = null
+        get() = (field ?: _salt)
+
+    private lateinit var passwordHash: String
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     var accessCode: String? = null
@@ -53,7 +58,7 @@ class User private constructor(
         password: String
     ): this(firstName, lastName, email = email, meta = mapOf("auth" to "password")) {
         println("Secondary mail constructor")
-        passwoedHash = encrypt(password)
+        passwordHash = encrypt(password)
     }
 
     constructor(
@@ -89,16 +94,16 @@ class User private constructor(
         """.trimIndent()
     }
 
-    fun checkPassword(pass:String) = encrypt(pass) == passwoedHash
+    fun checkPassword(pass:String) = encrypt(pass) == passwordHash
 
     fun changePassword(oldPass:String, newPass:String) {
-        if (checkPassword(oldPass)) passwoedHash = encrypt(newPass)
+        if (checkPassword(oldPass)) passwordHash = encrypt(newPass)
         else throw IllegalArgumentException("Thr entered password dos not mach the current password")
     }
 
     fun requestAccessCode() {
         val code = generateAccessCode()
-        passwoedHash = encrypt(code)
+        passwordHash = encrypt(code)
         accessCode = code
         sendAccessCodeToUser(phone, code)
     }
@@ -141,6 +146,23 @@ class User private constructor(
                 !email.isNullOrBlank() && !password.isNullOrBlank() -> User(firstName, lastName, email, password)
                 else -> throw IllegalArgumentException("Email or phone must be not null or blank")
             }
+        }
+
+        fun importUser(
+            fullName: String? = null,
+            email: String?  = null,
+            passwordHash: String? = null,
+            salt: String? = null,
+            phone: String? = null
+        ):User {
+            val (firstName, lastName) = (fullName?:"").fullNameToPair()
+
+            val user = User(firstName, lastName, email, phone, meta = mapOf("src" to "csv"))
+            if (!passwordHash.isNullOrBlank() && !salt.isNullOrBlank()) {
+                user.passwordHash = passwordHash
+                user.salt = salt
+            }
+            return user
         }
 
         private fun String.fullNameToPair() : Pair<String, String?> {

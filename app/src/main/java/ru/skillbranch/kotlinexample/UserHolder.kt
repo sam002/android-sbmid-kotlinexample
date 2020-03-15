@@ -1,6 +1,5 @@
 package ru.skillbranch.kotlinexample
 
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 
 object UserHolder {
@@ -48,5 +47,36 @@ object UserHolder {
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun clearHolder() {
         map.clear()
+    }
+
+    fun importUsers(list: List<String>): List<String> {
+        val resultStrings = emptyList<String>().toMutableList()
+        list.forEach {nodeString ->
+            nodeString.split(";")
+                .filter { it.isNotBlank() }
+                .apply {
+                    val (salt, pass) = this[2].split(':')
+                    val userMap = hashMapOf(
+                        "fullName" to this[0],
+                        "email" to this[1],
+                        "password" to pass,
+                        "salt" to salt,
+                        "phone" to this[3]
+                    )
+
+                    val impordedUser = User.importUser(
+                        userMap["fullName"]!!,
+                        userMap["email"]!!,
+                        userMap["password"]!!,
+                        userMap["salt"]!!,
+                        userMap["phone"]!!
+                    )
+
+                    map[impordedUser.login] = impordedUser
+                    resultStrings += impordedUser.userInfo
+                }
+        }
+
+        return resultStrings
     }
 }

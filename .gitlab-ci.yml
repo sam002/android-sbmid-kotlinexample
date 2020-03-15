@@ -1,0 +1,50 @@
+image: registry.gitlab.com/sam002/docker-images/android-sdk-29
+
+stages:
+  - build
+  - test
+
+variables:
+  GRADLE_USER_HOME: ${CI_PROJECT_DIR}/.gradle
+
+before_script:
+  - echo `pwd` # debug
+  - echo "$CI_BUILD_NAME, $CI_BUILD_REF_NAME $CI_BUILD_STAGE" # debug
+  - chmod +x ./gradlew
+
+lint-debug:
+  stage: build
+  script:
+    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+  artifacts:
+    name: "lint-${CI_BUILD_NAME}"
+    expire_in: 20 week
+    when: always
+#    when: on_failure
+    expose_as: 'lint report'
+    paths:
+      - app/lint/reports/lint-results-debug.html
+
+assemble-debug:
+  stage: build
+  script:
+    - ./gradlew assembleDebug
+  artifacts:
+    name: "apk-${CI_BUILD_NAME}"
+    expire_in: 20 week
+    when: on_success
+    expose_as: 'apk'
+    paths:
+    - app/build/outputs/apk/debug/app-debug.apk
+
+unit-tests:
+  stage: test
+  script:
+    - ./gradlew -Pci --console=plain :app:testDebug
+  tags:
+    - docker-exec
+
+after_script:
+  - rm -f  .gradle/caches/modules-2/modules-2.lock
+  - rm -rf .gradle/caches/*/plugin-resolution/
+  - echo "End CI"
