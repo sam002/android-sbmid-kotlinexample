@@ -33,8 +33,7 @@ lint-debug:
     when: always
 #    when: on_failure
     expose_as: 'lint report'
-    paths:
-      - app/lint/reports/lint-results-debug.html
+    paths: [ 'app/lint/reports/lint-results-debug.html' ]
 
 assemble-debug:
   stage: build
@@ -42,11 +41,10 @@ assemble-debug:
     - ./gradlew assembleDebug
   artifacts:
     name: "apk-${CI_BUILD_NAME}"
-    expire_in: 20 week
+    expire_in: 10 week
     when: on_success
     expose_as: 'apk'
-    paths:
-    - app/build/outputs/apk/debug/app-debug.apk
+    paths: ['app/build/outputs/apk/debug/app-debug.apk' ]
 
 unit-tests:
   stage: test
