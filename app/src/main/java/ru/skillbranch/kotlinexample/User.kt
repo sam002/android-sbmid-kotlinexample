@@ -7,7 +7,6 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.*
-import kotlin.reflect.KProperty
 
 class User private constructor(
     private val firstName:String,

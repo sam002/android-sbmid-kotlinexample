@@ -3,6 +3,7 @@ package ru.skillbranch.kotlinexample
 import org.junit.After
 import org.junit.Assert
 import org.junit.Test
+import ru.skillbranch.kotlinexample.extensions.dropLastUntil
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -208,5 +209,11 @@ class ExampleUnitTest {
         successResult.forEach {
             Assert.assertEquals(expectedInfo, it)
         }
+    }
+
+    @Test
+    fun extension_drop() {
+        Assert.assertEquals("[1]", listOf(1, 2, 3).dropLastUntil{ it==2 }.toString())
+        Assert.assertEquals("[House, Nymeros, Martell]", "House Nymeros Martell of Sunspear".split(" ").dropLastUntil{ it == "of" }.toString())
     }
 }
