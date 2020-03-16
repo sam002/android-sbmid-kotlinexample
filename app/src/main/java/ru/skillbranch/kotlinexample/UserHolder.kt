@@ -54,8 +54,8 @@ object UserHolder {
         list.forEach {nodeString ->
             nodeString.split(";")
                 .apply {
-                    var password:String? = null
-                    var salt:String? = null
+                    var password: String
+                    var salt:String
                     this.getOrNull(2)?.split(":".toRegex()).let {
                         salt = first()
                         password = last()
