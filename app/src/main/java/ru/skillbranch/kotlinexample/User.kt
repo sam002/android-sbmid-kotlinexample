@@ -69,6 +69,19 @@ class User private constructor(
         requestAccessCode()
     }
 
+    constructor(
+        firstName: String,
+        lastName: String?,
+        email: String?,
+        passHash: String?,
+        passSalt:String?,
+        rawPhone: String?
+    ): this(firstName, lastName, email = email, rawPhone = rawPhone, meta = mapOf("src" to "csv")) {
+        println("Secondary import constructor")
+        passwordHash = passHash ?: ""
+        salt = passSalt
+    }
+
     init {
         println("First init block, primary constructor was called")
 
@@ -156,12 +169,7 @@ class User private constructor(
         ):User {
             val (firstName, lastName) = (fullName?:"").fullNameToPair()
 
-            val user = User(firstName, lastName, email, phone, meta = mapOf("src" to "csv"))
-            if (!passwordHash.isNullOrBlank() && !salt.isNullOrBlank()) {
-                user.passwordHash = passwordHash
-                user.salt = salt
-            }
-            return user
+            return User(firstName, lastName, email, passwordHash, salt, phone)
         }
 
         private fun String.fullNameToPair() : Pair<String, String?> {
