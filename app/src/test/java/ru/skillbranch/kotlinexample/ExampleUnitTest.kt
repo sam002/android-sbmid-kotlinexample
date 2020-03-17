@@ -215,7 +215,12 @@ class ExampleUnitTest {
 
     @Test
     fun extension_drop() {
-        Assert.assertEquals("[1]", listOf(1, 2, 3).dropLastUntil{ it==2 }.toString())
+//        Assert.assertEquals("[1]", listOf(1, 2, 3).dropLastUntil{ it==2 }.toString())
+        Assert.assertEquals("[House, Nymeros, Martell, of]", "House Nymeros Martell of Sunspear".split(" ").dropLastUntil{ it == "Sunspear" }.toString())
         Assert.assertEquals("[House, Nymeros, Martell]", "House Nymeros Martell of Sunspear".split(" ").dropLastUntil{ it == "of" }.toString())
+        Assert.assertEquals("[House, Nymeros]", "House Nymeros Martell of Sunspear".split(" ").dropLastUntil{ it == "Martell" }.toString())
+        Assert.assertEquals("[House]", "House Nymeros Martell of Sunspear".split(" ").dropLastUntil{ it == "Nymeros" }.toString())
+        Assert.assertEquals("[]", "House Nymeros Martell of Sunspear".split(" ").dropLastUntil{ it == "House" }.toString())
+        Assert.assertEquals("[]", "House Nymeros Martell of Sunspear".split(" ").dropLastUntil{ it == "test" }.toString())
     }
 }
