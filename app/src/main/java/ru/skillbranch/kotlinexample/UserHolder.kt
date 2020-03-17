@@ -49,8 +49,8 @@ object UserHolder {
         map.clear()
     }
 
-    fun importUsers(list: List<String>): List<String> {
-        val resultStrings = emptyList<String>().toMutableList()
+    fun importUsers(list: List<String>): List<User> {
+        val resultStrings = emptyList<User>().toMutableList()
         list.forEach {nodeString ->
             nodeString.split(";")
                 .apply {
@@ -79,7 +79,7 @@ object UserHolder {
                     )
 
                     map[impordedUser.login] = impordedUser
-                    resultStrings += impordedUser.userInfo
+                    resultStrings += impordedUser
                 }
         }
 

@@ -207,7 +207,7 @@ class ExampleUnitTest {
         val successResult =  holder.importUsers(csvStrings)
 
         successResult.forEach {
-            Assert.assertEquals(expectedInfo, it)
+            Assert.assertEquals(expectedInfo, it.userInfo)
         }
     }
 
