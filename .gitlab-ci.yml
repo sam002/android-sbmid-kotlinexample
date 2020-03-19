@@ -10,17 +10,19 @@ variables:
 before_script:
   - echo `pwd` # debug
   - echo "$CI_BUILD_NAME, $CI_BUILD_REF_NAME $CI_BUILD_STAGE" # debug
+
   #restore build artifacts
-  - cp -r ./ci-scripts/gradle ./
-  - cp ./ci-scripts/build.gradle ./
-  - cp ./ci-scripts/gradle.properties ./
-  - cp ./ci-scripts/gradlew ./
-  - cp ./ci-scripts/settings.gradle ./
-  - cp -r ./ci-scripts/ ./app/libs
-  - cp ./ci-scripts/app-build.gradle ./app/build.gradle
-  #- cp -r ./ci-scripts/androidTest ./app/src/
-  #- cp -r ./ci-scripts/res ./app/src/main/
-  - cp ./ci-scripts/AndroidManifest.xml ./app/src/main/
+  - cp ./.ci-scripts/build.gradle.ci ./build.gradle
+  - cp ./.ci-scripts/gradle.properties.ci ./gradle.properties
+  - cp ./.ci-scripts/gradlew.ci ./gradlew
+  - cp ./.ci-scripts/settings.gradle.ci ./settings.gradle
+  - cp ./.ci-scripts/app-build.gradle.ci ./app/build.gradle
+  - cp ./.ci-scripts/AndroidManifest.xml.ci ./app/src/main/AndroidManifest.xml
+  - cp -r ./.ci-scripts/gradle ./
+  #- cp -r ./.ci-scripts/ ./app/libs
+  #- cp -r ./.ci-scripts/androidTest ./app/src/
+  #- cp -r ./.ci-scripts/res ./app/src/main/
+
   - chmod +x ./gradlew
 
 lint-debug:
