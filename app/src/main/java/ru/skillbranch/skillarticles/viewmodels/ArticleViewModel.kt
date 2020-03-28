@@ -10,13 +10,16 @@ import ru.skillbranch.skillarticles.extensions.format
 
 class ArticleViewModel(private val articleId: String) : BaseViewModel<ArticleState>(ArticleState()),IArticleViewModel {
     private val repository = ArticleRepository
+    private var menuIsShown:Boolean = false
 
     init {
+        //subscribe mutable data
         subscribeOnDataSource(getArticleData()) { article, state ->
             article ?: return@subscribeOnDataSource null
             state.copy(
                 shareLink = article.shareLink,
                 title = article.title,
+                author = article.author,
                 category = article.category,
                 categoryIcon = article.categoryIcon,
                 date = article.date.format()
@@ -39,8 +42,8 @@ class ArticleViewModel(private val articleId: String) : BaseViewModel<ArticleSta
             )
         }
 
+        //subscribe settenings
         subscribeOnDataSource(repository.getAppSettings()) { settings, state ->
-            settings ?: return@subscribeOnDataSource null
             state.copy(
                 isDarkMode = settings.isDarkMode,
                 isBigText = settings.isBigText
@@ -48,18 +51,22 @@ class ArticleViewModel(private val articleId: String) : BaseViewModel<ArticleSta
         }
     }
 
+    //from network
     override fun getArticleContent(): LiveData<List<Any>?> {
         return repository.loadArticleContent(articleId)
     }
 
+    //from DB
     override fun getArticleData(): LiveData<ArticleData?> {
         return repository.getArticle(articleId)
     }
 
+    //from DB
     override fun getArticlePersonalInfo(): LiveData<ArticlePersonalInfo?> {
         return repository.loadArticlePersonalInfo(articleId)
     }
 
+    //app settenings
     override fun handleNightMode() {
         val  settings = currentState.toAppSettings()
         repository.updateSettings(settings.copy(isDarkMode = !settings.isDarkMode))
@@ -74,10 +81,15 @@ class ArticleViewModel(private val articleId: String) : BaseViewModel<ArticleSta
     }
 
     override fun handleBookmark() {
-        TODO("Not yet implemented")
+        val info = currentState.toArticlePersonalInfo()
+        repository.updateArticlePersonalInfo(info.copy(isBookmark = !info.isBookmark))
+
+        val msg = if (currentState.isBookmark) "Add to bookmarks" else "Remove from bookmarks"
+        notify(Notify.TextMessage(msg))
     }
 
     override fun handleLike() {
+        val isLiked = currentState.isLike
         val toggleLike = {
             val info = currentState.toArticlePersonalInfo()
             repository.updateArticlePersonalInfo(info.copy(isLike = !info.isLike))
@@ -85,10 +97,10 @@ class ArticleViewModel(private val articleId: String) : BaseViewModel<ArticleSta
 
         toggleLike()
 
-        val msg = if (currentState.isLike) Notify.TextMessage("Mark is liked")
+        val msg = if (!isLiked) Notify.TextMessage("Mark is liked")
         else {
             Notify.ActionMessage(
-                "Don't like it anymore",
+                "Don`t like it anymore",
                 "No, still like it",
                 toggleLike
             )
@@ -102,16 +114,24 @@ class ArticleViewModel(private val articleId: String) : BaseViewModel<ArticleSta
         notify(Notify.ErrorMessage(msg, "OK", null))
     }
 
+    fun hideMenu() {
+        updateState { it.copy(isShowMenu = false) }
+    }
+
+    fun showMenu() {
+        updateState { it.copy(isShowMenu = menuIsShown) }
+    }
+
     override fun handleToggleMenu() {
         updateState { it.copy(isShowMenu = !it.isShowMenu) }
     }
 
     override fun handleSearchMode(isSearch: Boolean) {
-        TODO("Not yet implemented")
+        updateState { it.copy(isSearch = isSearch)}
     }
 
     override fun handleSearch(query: String?) {
-        TODO("Not yet implemented")
+        updateState { it.copy(searchQuery = query)}
     }
 }
 
