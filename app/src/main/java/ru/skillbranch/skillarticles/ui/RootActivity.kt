@@ -28,7 +28,7 @@ import ru.skillbranch.skillarticles.ui.base.Binding
 import ru.skillbranch.skillarticles.ui.custom.SearchFocusSpan
 import ru.skillbranch.skillarticles.ui.custom.SearchSpan
 import ru.skillbranch.skillarticles.ui.delegates.AttrValue
-import ru.skillbranch.skillarticles.ui.delegates.ObserveProrp
+import ru.skillbranch.skillarticles.ui.delegates.ObserveProp
 import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.viewmodels.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
@@ -82,7 +82,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             val result = spans[searchPosition]
             Selection.setSelection(content, content.getSpanStart(result))
             content.setSpan(
-                SearchSpan(bgColor, fgColor),
+                SearchFocusSpan(bgColor, fgColor),
                 content.getSpanStart(result),
                 content.getSpanEnd(result),
                 SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -222,7 +222,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         var isFocusedSearch: Boolean = false
 
         var searchQuery: String? = null
-        private var isLoadingContent by ObserveProrp(true)
+        private var isLoadingContent by ObserveProp(true)
 
         private var isLike: Boolean by RenderProp(false){btn_like.isChecked = it}
         private var isBookmark: Boolean by RenderProp(false){btn_bookmark.isChecked = it}
@@ -252,14 +252,14 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             delegate.localNightMode = if(it) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         }
 
-        var isSearch: Boolean by ObserveProrp(false) {
+        var isSearch: Boolean by ObserveProp(false) {
             if(it) showSearchBar() else hideSearchBar()
         }
 
-        private var searchResults: List<Pair<Int, Int>> by ObserveProrp(emptyList())
-        private var searchPosition: Int by ObserveProrp(0)
+        private var searchResults: List<Pair<Int, Int>> by ObserveProp(emptyList())
+        private var searchPosition: Int by ObserveProp(0)
 
-        private var content: String by ObserveProrp("loaading") {
+        private var content: String by ObserveProp("loaading") {
             tv_text_content.setText(it, TextView.BufferType.SPANNABLE)
             tv_text_content.movementMethod = ScrollingMovementMethod()
         }
