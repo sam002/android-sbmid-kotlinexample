@@ -1,15 +1,12 @@
 package ru.skillbranch.skillarticles.markdown
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Typeface
 import android.text.SpannableStringBuilder
 import android.text.SpannedString
-import android.text.style.QuoteSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.text.style.URLSpan
-import android.util.TypedValue
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import ru.skillbranch.skillarticles.R
