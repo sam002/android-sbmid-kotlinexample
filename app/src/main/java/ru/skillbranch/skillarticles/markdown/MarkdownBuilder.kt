@@ -111,6 +111,11 @@ class MarkdownBuilder(context: Context) {
                         append(element.text)
                     }
                 }
+                is Element.OrderedListItem -> {
+                    inSpans(OrderedListSpan(gap, element.order, colorSecondary)) {
+                        append(element.text)
+                    }
+                }
                 else -> append(element.text)
             }
         }

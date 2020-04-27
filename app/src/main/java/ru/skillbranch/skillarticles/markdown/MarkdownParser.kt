@@ -219,7 +219,7 @@ object MarkdownParser {
                 //11 -> NUMERIC LIST
                 11 -> {
 
-                    val(order:String, textList:String) = Regex("^(\\d)+\\.\\s(.+)$")
+                    val(order:String, textList:String) = Regex("^(\\d+\\.)\\s(.+)$")
                         .find(string.subSequence(startIndex, endIndex))!!.destructured
                     val subelements = findElements(textList)
 
