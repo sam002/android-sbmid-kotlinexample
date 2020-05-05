@@ -1,5 +1,7 @@
 package ru.skillbranch.skillarticles.ui.delegates
 
+import android.os.Parcel
+import android.os.Parcelable
 import ru.skillbranch.skillarticles.ui.base.Binding
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty

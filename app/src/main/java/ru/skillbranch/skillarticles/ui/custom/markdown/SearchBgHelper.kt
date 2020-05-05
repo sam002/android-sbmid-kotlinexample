@@ -13,6 +13,7 @@ import androidx.core.text.getSpans
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.*
 import ru.skillbranch.skillarticles.ui.custom.spans.HeaderSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.SearchFocusSpan
 import ru.skillbranch.skillarticles.ui.custom.spans.SearchSpan
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -39,6 +40,7 @@ class SearchBgHelper(
         GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadii = FloatArray(8).apply { fill(radius, 0, size) }
+            color = ColorStateList.valueOf(alphaColor)
             setStroke(borderWidth, secondaryColor)
         }
     }
@@ -102,6 +104,10 @@ class SearchBgHelper(
             startLine = layout.getLineForOffset(spanStart)
             endLine = layout.getLineForOffset(spanEnd)
 
+            if (it is SearchFocusSpan) {
+                focusListener?.invoke(layout.getLineTop(startLine), layout.getLineBottom(startLine))
+            }
+
             headerSpans = text.getSpans(spanStart, spanEnd, HeaderSpan::class.java)
 
             topExtraPadding = 0
@@ -121,7 +127,6 @@ class SearchBgHelper(
         }
     }
 }
-
 
 abstract class SearchBgRender(
     val padding: Int
@@ -167,16 +172,22 @@ class SingleLineRender(
         lineTop = getLineTop(layout, startLine) + topExtraPadding
         lineBottom = getLineBottom(layout, startLine) - bottomExtraPadding
         drawable.setBounds(startOffset-padding, lineTop, endOffset+padding, lineBottom)
+        drawable.draw(canvas)
     }
 
 }
 
 class MultiLineRender(
     padding: Int,
-    private val drawableLeft: Drawable,
-    private val drawableMiddle: Drawable,
-    private val drawableRight: Drawable
+    val drawableLeft: Drawable,
+    val drawableMiddle: Drawable,
+    val drawableRight: Drawable
 ) : SearchBgRender(padding) {
+
+    private var lineTop: Int = 0
+    private var lineBottom: Int = 0
+    private var lineEndOffset: Int = 0
+    private var lineStartOffset: Int = 0
 
     override fun draw(
         canvas: Canvas,
@@ -188,6 +199,28 @@ class MultiLineRender(
         topExtraPadding: Int,
         bottomExtraPadding: Int
     ) {
+
+        lineEndOffset = (layout.getLineRight(startLine) + padding).toInt()
+        lineTop = getLineTop(layout, startLine) + topExtraPadding
+        lineBottom = getLineBottom(layout, startLine)
+        drawStart(canvas, startOffset - padding, lineTop, lineEndOffset, lineBottom)
+
+        for (line in startLine.inc() until endLine) {
+            lineTop = getLineTop(layout, line)
+            lineBottom = getLineBottom(layout, line)
+            drawableMiddle.setBounds(
+                layout.getLineLeft(line).toInt() - padding,
+                lineTop,
+                layout.getLineRight(line).toInt() + padding,
+                lineBottom
+            )
+            drawableMiddle.draw(canvas)
+        }
+
+        lineStartOffset = (layout.getLineLeft(startLine) - padding).toInt()
+        lineTop = getLineTop(layout, endLine)
+        lineBottom = getLineBottom(layout, endLine) - bottomExtraPadding
+        drawEnd(canvas, lineStartOffset, lineTop, endOffset + padding, lineBottom)
     }
 
     private fun drawStart(
@@ -197,7 +230,8 @@ class MultiLineRender(
         end: Int,
         bottom: Int
     ) {
-        //TODO implement me
+        drawableLeft.setBounds(start, top, end, bottom)
+        drawableLeft.draw(canvas)
     }
 
     private fun drawEnd(
@@ -207,6 +241,7 @@ class MultiLineRender(
         end: Int,
         bottom: Int
     ) {
-        //TODO implement me
+        drawableRight.setBounds(start, top, end, bottom)
+        drawableRight.draw(canvas)
     }
 }
