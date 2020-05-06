@@ -105,13 +105,13 @@ class MarkdownContentView @JvmOverloads constructor(
                 }
 
                 is MarkdownElement.Scroll -> {
-//                    val sv = MarkdownCodeView (
-//                        context,
-//                        textSize,
-//                        it.blockCode.text
-//                    )
-//
-//                    addView(sv)
+                    val sv = MarkdownCodeView (
+                        context,
+                        textSize,
+                        it.blockCode.text
+                    )
+
+                    addView(sv)
                 }
             }
         }
@@ -159,7 +159,8 @@ class MarkdownContentView @JvmOverloads constructor(
     }
 
     fun setCopyListener(listener: (String) -> Unit) {
-        //TODO implement me
+        children.filterIsInstance<MarkdownCodeView>()
+            .forEach { it.copyListener = listener }
     }
 }
 
