@@ -172,7 +172,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
     }
 
     private fun setupCopyListener() {
-        tv_text_content.setCopyListener { copy -> 
+        tv_text_content.setCopyListener { copy ->
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
             val clip = ClipData.newPlainText("Copied code", copy)

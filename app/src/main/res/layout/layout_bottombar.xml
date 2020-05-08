@@ -29,12 +29,12 @@
     <ImageView
         android:id="@+id/btn_share"
         style="@style/BottombarIcon"
+        android:clickable="true"
+        android:focusable="true"
         android:src="@drawable/ic_share_black_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btn_bookmark"
-        app:layout_constraintTop_toTopOf="parent"
-        android:clickable="true"
-        android:focusable="true"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ru.skillbranch.skillarticles.ui.custom.CheckableImageView
         android:id="@+id/btn_settings"
