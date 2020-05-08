@@ -254,16 +254,9 @@ object MarkdownParser {
                 8 -> {
                     //text without "`{}`"
                     text = string.subSequence(startIndex.plus(1), endIndex.minus(1))
-                    val subelements =
-                        findElements(
-                            text
-                        )
 
                     val element =
-                        Element.InlineCode(
-                            text,
-                            subelements
-                        )
+                        Element.InlineCode(text)
                     parents.add(element)
 
                     lastIndex = endIndex
