@@ -27,12 +27,6 @@ class MarkdownTextView  constructor(
     mockHelper: SearchBgHelper? = null //for mock
 ) : AppCompatTextView(context, null, 0), IMarkdownView {
 
-//    class MarkdownTextView @JvmOverloads constructor(
-//        context: Context,
-//        attrs: AttributeSet? = null,
-//        defStyleAttr: Int = 0
-//    ) : AppCompatTextView(context, attrs, defStyleAttr) {
-
     constructor(context: Context, fontSize: Float) : this(context, fontSize, null)
 
     override var fontSize: Float = fontSize
