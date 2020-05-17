@@ -3,6 +3,8 @@ package ru.skillbranch.skillarticles.ui.custom.markdown
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
+import android.os.Parcel
+import android.os.Parcelable
 import android.text.Spannable
 import android.view.*
 import android.widget.ImageView
@@ -235,14 +237,50 @@ class MarkdownImageView private constructor(
         va.doOnEnd { tv_alt?.isVisible = false }
         va.start()
     }
+
+    //save state
+    override fun onSaveInstanceState(): Parcelable? {
+        val savedState = SavedState(super.onSaveInstanceState())
+        savedState.altVisible = tv_alt?.isVisible ?: false
+        return savedState
+    }
+
+    //restore state
+    override fun onRestoreInstanceState(state: Parcelable) {
+        super.onRestoreInstanceState(state)
+        if (state is SavedState) {
+            tv_alt?.isVisible = state.altVisible
+        }
+    }
+
+    private class SavedState : View.BaseSavedState, Parcelable {
+        var altVisible: Boolean = false
+
+        constructor(superState: Parcelable?) : super(superState)
+
+        constructor(src: Parcel) : super(src) {
+            altVisible = src.readInt() == 1
+        }
+
+        override fun writeToParcel(dst: Parcel, flags: Int) {
+            super.writeToParcel(dst, flags)
+            dst.writeInt(if (altVisible) 1 else 0)
+        }
+
+        override fun describeContents() = 0
+
+        companion object CREATOR : Parcelable.Creator<SavedState> {
+            override fun createFromParcel(parcel: Parcel) = SavedState(parcel)
+            override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+        }
+    }
 }
 
 class AspectRatioResizeTransform : BitmapTransformation() {
-    private val ID =
-        "ru.skillbranch.skillarticles.glide.AspectRatioResizeTransform_sam" //any unique string
-    private val ID_BYTES = ID.toByteArray(Charset.forName("UTF-8"))
+    private val id = "ru.skillbranch.skillarticles.glide.AspectRatioResizeTransform_sam" //any unique string
+    private val idBytes = id.toByteArray(Charset.forName("UTF-8"))
     override fun updateDiskCacheKey(messageDigest: MessageDigest) {
-        messageDigest.update(ID_BYTES)
+        messageDigest.update(idBytes)
     }
 
     override fun transform(
@@ -265,5 +303,5 @@ class AspectRatioResizeTransform : BitmapTransformation() {
 
     override fun equals(other: Any?): Boolean = other is AspectRatioResizeTransform
 
-    override fun hashCode(): Int = ID.hashCode()
+    override fun hashCode(): Int = id.hashCode()
 }

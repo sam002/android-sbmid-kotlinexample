@@ -56,7 +56,6 @@ class MarkdownTextView  constructor(
         movementMethod = LinkMovementMethod.getInstance()
     }
 
-
     override fun onDraw(canvas: Canvas) {
         if (text is Spanned && layout != null) {
             canvas.withTranslation(totalPaddingLeft.toFloat(), totalPaddingTop.toFloat()) {
