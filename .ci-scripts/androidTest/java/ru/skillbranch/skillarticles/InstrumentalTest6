@@ -36,7 +36,7 @@ import java.lang.Thread.sleep
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 @RunWith(AndroidJUnit4::class)
-class InstrumentalTest1 {
+class InstrumentalTest6 {
 
     @Test
     fun group_by_bounds() {
