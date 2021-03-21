@@ -18,6 +18,7 @@ abstract class BaseFragment<T : BaseViewModel<out IViewModelState>> : Fragment()
     open val prepareToolbar: (ToolbarBuilder.() -> Unit)? = null
     open val prepareBottombar: (BottombarBuilder.() -> Unit)? = null
 
+
     val toolbar
         get() = root.toolbar
 
@@ -55,7 +56,7 @@ abstract class BaseFragment<T : BaseViewModel<out IViewModelState>> : Fragment()
         if (binding?.isInflated == false) binding?.onFinishInflate()
 
         viewModel.observeNotifications(viewLifecycleOwner) { root.renderNotification(it) }
-        viewModel.observeNavigation(viewLifecycleOwner) { root.viewModel.navigate(it) }
+//        viewModel.observeNavigation(viewLifecycleOwner) { root.viewModel.navigate(it) }
 
         setupViews()
     }

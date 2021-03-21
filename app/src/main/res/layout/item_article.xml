@@ -68,7 +68,7 @@
         android:id="@+id/iv_category"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        tools:srcCompat="@tools:sample/avatars"
+        tools:srcCompat="@tools:sample/backgrounds/scenic"
         app:layout_constraintTop_toBottomOf="@id/iv_poster"
         app:layout_constraintBottom_toBottomOf="@id/iv_poster"
         app:layout_constraintStart_toStartOf="@id/iv_poster"
