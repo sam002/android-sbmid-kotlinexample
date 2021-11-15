@@ -1,6 +1,5 @@
-package ru.skillbranch.skillarticles.data.repositories
+package ru.skillbranch.skillarticles.markdown
 
-import androidx.annotation.VisibleForTesting
 import java.util.regex.Pattern
 
 object MarkdownParser {
@@ -31,49 +30,29 @@ object MarkdownParser {
     /**
      * parse markdown text to elements
      */
-    fun parse(string: String): List<MarkdownElement>{
+    fun parse(string: String): MarkdownText{
         val elements = mutableListOf<Element>()
         elements.addAll(findElements(string))
 
-        return  elements.fold(mutableListOf()){ acc, element ->
-            val last = acc.lastOrNull()
-            when(element) {
-                is Element.Image -> {
-                    acc.add(MarkdownElement.Image(element, last?.bounds?.second ?: 0))
-                }
-                is Element.BlockCode -> {
-                    acc.add(MarkdownElement.Scroll(element, last?.bounds?.second ?: 0))
-                }
-                else -> {
-                    if (last is MarkdownElement.Text) last.elements.add(element)
-                    else acc.add(
-                        MarkdownElement.Text(
-                            mutableListOf(element),
-                            last?.bounds?.second ?: 0
-                        )
-                    )
-                }
-            }
-            acc
-        }
+        return  MarkdownText(elements)
     }
 
     /**
      * clear markdown text to string without markdown characters
      */
-//    fun clear(string: String): String?{
-//        var resultText: String? = null
-//        var mdText = parse(string)
-//
-//        while (mdText.elements.size > 1) {
-//            resultText = ""
-//            for (element in mdText.elements) {
-//                resultText = "$resultText${element.text}"
-//            }
-//            mdText = parse(resultText!!)
-//        }
-//        return resultText
-//    }
+    fun clear(string: String): String?{
+        var resultText: String? = null
+        var mdText = parse(string)
+
+        while (mdText.elements.size > 1) {
+            resultText = ""
+            for (element in mdText.elements) {
+                resultText = "$resultText${element.text}"
+            }
+            mdText = parse(resultText!!)
+        }
+        return resultText
+    }
 
     /**
      * find markdown elements in markdown text
@@ -235,15 +214,28 @@ object MarkdownParser {
                     lastStartIndex = endIndex
                 }
 
-                //12 -> IMAGE
+                //IMAGE
                 12 -> {
+                    //full text for regex
                     text = string.subSequence(startIndex, endIndex)
+                    val (alt: String?, subtext: String) = "\\!\\[(.*)]\\((.*?)\\)".toRegex().find(text)!!
+                        .destructured
 
-                    val (alt, url, title) = Regex("^!\\[([^\\[\\]]*?)?]\\((.*?)\\s\"(.*?)\"\\)$").find(text)!!.destructured
+                    val altText = if(alt.isBlank()) {
+                        null
+                    } else {
+                        alt
+                    }
 
-                    val element = Element.Image(url, if(alt.isBlank()) null else alt, title)
+                    val findResult = "(.*?)\\s\\\"(.+)\\\"".toRegex().find(subtext)
+
+                    var (link: String, title: String) = if(null !== findResult) {
+                        findResult.destructured.toList()
+                    } else {
+                        listOf(subtext, "")
+                    }
+                    val element = Element.Image(link, altText, title)
                     parents.add(element)
-
                     lastStartIndex = endIndex
                 }
             }
@@ -259,39 +251,6 @@ object MarkdownParser {
 }
 
 data class MarkdownText(val elements: List<Element>)
-
-sealed class MarkdownElement() {
-    abstract val offset: Int
-    val bounds: Pair<Int, Int> by lazy {
-        when(this){
-            is Text -> {
-                val end = elements.fold(offset) { acc, el ->
-                    acc + el.spread().map { it.text.length }.sum()
-                }
-                offset to end
-            }
-
-            is Image -> offset to image.text.length + offset
-
-            is Scroll -> offset to blockCode.text.length + offset
-        }
-    }
-
-    data class Text(
-        val elements: MutableList<Element>,
-        override val offset: Int = 0
-    ): MarkdownElement()
-
-    data class Image(
-        val image: Element.Image,
-        override val offset: Int = 0
-    ): MarkdownElement()
-
-    data class Scroll(
-        val blockCode: Element.BlockCode,
-        override val offset: Int = 0
-    ): MarkdownElement()
-}
 
 sealed class Element(){
     abstract val text: CharSequence
@@ -367,50 +326,3 @@ sealed class Element(){
         override val elements: List<Element> = emptyList()
     ) : Element()
 }
-
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-fun  Element.spread(): List<Element> {
-    val elements = mutableListOf<Element>()
-    if (this.elements.isNotEmpty()) elements.addAll(this.elements.spread())
-    else elements.add(this)
-    return  elements
-}
-
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-fun List<Element>.spread(): List<Element> {
-    val elements = mutableListOf<Element>()
-    forEach { elements.addAll(it.spread()) }
-    return elements
-}
-
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-fun Element.clearContent(): String {
-    return StringBuilder().apply {
-        val element = this@clearContent
-        if (element.elements.isEmpty()) append(element.text)
-        else element.elements.forEach { append(it.clearContent()) }
-    }.toString()
-}
-
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-fun MarkdownText.clearContent(): String {
-    return java.lang.StringBuilder().apply {
-        elements.forEach {
-            if (it.elements.isEmpty()) append(it.text)
-            else it.elements.forEach { el -> append(el.clearContent()) }
-        }
-    }.toString()
-}
-
-fun List<MarkdownElement>.clearContent(): String {
-    return StringBuilder().apply {
-        this@clearContent.forEach {
-            when(it) {
-                is MarkdownElement.Text -> it.elements.forEach{el -> append(el.clearContent())}
-                is MarkdownElement.Image -> append(it.image.clearContent())
-                is MarkdownElement.Scroll -> append(it.blockCode.clearContent())
-            }
-        }
-    }.toString()
-}
-

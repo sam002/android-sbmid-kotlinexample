@@ -23,7 +23,7 @@ fun ArticleState.asMap(): Map<String, Any?> = mapOf(
     "isBigText" to isBigText,
     "isDarkMode" to isDarkMode,
     "isSearch" to isSearch,
-    "searcgap, bulletRadius, colorSecondaryhQuery" to searchQuery,
+    "searchQuery" to searchQuery,
     "searchResults" to searchResults,
     "searchPosition" to searchPosition,
     "shareLink" to shareLink,

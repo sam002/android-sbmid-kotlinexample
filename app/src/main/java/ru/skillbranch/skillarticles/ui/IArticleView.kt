@@ -12,9 +12,8 @@ interface IArticleView {
     fun renderUi(data: ArticleState)
     fun setupToolbar()
     fun renderSearchResult(searchResult: List<Pair<Int, Int>>)
-    fun renderSearchPosition(searchPosition: Int, searchResult: List<Pair<Int, Int>>)
+    fun renderSearchPosition(searchPosition: Int)
     fun clearSearchResult()
     fun showSearchBar(resultsCount: Int, searchPosition: Int)
     fun hideSearchBar()
-    fun setupCopyListener()
 }
