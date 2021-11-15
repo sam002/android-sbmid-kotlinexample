@@ -3,13 +3,14 @@ package ru.skillbranch.skillarticles.viewmodels
 import androidx.lifecycle.LiveData
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
+import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 
 interface IArticleViewModel {
     /**
      * Получение полной информации о статье из сети
      * (или базы данных если она сохранена, наличие статьи в базе не надо реализовывать в данном уроке)
      */
-    fun getArticleContent(): LiveData<String?>
+    fun getArticleContent(): LiveData<List<MarkdownElement>?>
 
     /**
      * Получение краткой информации о статье из базы данных
@@ -80,4 +81,20 @@ interface IArticleViewModel {
      * searchView при изменении конфигурации (пересоздании активити)
      */
     fun handleSearch(query: String?)
+
+    /**
+     * перместиться к предыдущему совпадению поиска
+     */
+    fun handleUpResult()
+
+    /**
+     * перместиться к следующему совпадению поиска
+     */
+    fun handleDownResult()
+
+    /**
+     * обрабока нажатия на iv_copy в MarkdownCodeView, необходимо скопировать код из MarkdownCodeView в буфер обмена
+     **/
+    fun handleCopyCode()
+
 }

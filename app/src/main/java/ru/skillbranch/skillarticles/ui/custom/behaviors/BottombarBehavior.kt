@@ -6,33 +6,36 @@ import androidx.core.math.MathUtils
 import androidx.core.view.ViewCompat
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
 
-
-class BottombarBehavior() : CoordinatorLayout.Behavior<Bottombar>() {
-
+class BottombarBehavior: CoordinatorLayout.Behavior<Bottombar>() {
     override fun onStartNestedScroll(
-        coordinatorLayout: CoordinatorLayout,
-        child: Bottombar,
-        directTargetChild: View,
-        target: View,
-        axes: Int,
-        type: Int
+            coordinatorLayout: CoordinatorLayout,
+            child: Bottombar,
+            directTargetChild: View,
+            target: View,
+            axes: Int,
+            type: Int
     ): Boolean {
         return axes == ViewCompat.SCROLL_AXIS_VERTICAL
     }
 
     override fun onNestedPreScroll(
-        coordinatorLayout: CoordinatorLayout,
-        child: Bottombar,
-        target: View,
-        dx: Int,
-        dy: Int,
-        consumed: IntArray,
-        type: Int
+            coordinatorLayout: CoordinatorLayout,
+            child: Bottombar,
+            target: View,
+            dx: Int,
+            dy: Int,
+            consumed: IntArray,
+            type: Int
     ) {
-        if(!child.isSearchMode){
-            val offset = MathUtils.clamp(child.translationY + dy, 0f, child.height.toFloat())
-            if (offset != child.translationY) child.translationY = offset
+        if (!child.isSearchMode) {
+            //dy<0 scroll down
+            //dy>0 scroll up
+            val offset = MathUtils.clamp(child.translationY + dy, 0f, child.minHeight.toFloat())
+            if (offset != child.translationY) {
+                child.translationY = offset
+            }
         }
+
         super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed, type)
     }
 }

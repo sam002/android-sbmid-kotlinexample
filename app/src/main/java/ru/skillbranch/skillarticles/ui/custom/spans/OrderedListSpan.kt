@@ -1,11 +1,9 @@
-package ru.skillbranch.skillarticles.markdown.spans
+package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.text.Layout
 import android.text.style.LeadingMarginSpan
-import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import androidx.annotation.VisibleForTesting
@@ -21,7 +19,7 @@ class OrderedListSpan(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return (order.length.inc()* gapWidth).toInt()
+        return (order.length.inc() * gapWidth).toInt()
     }
 
     override fun drawLeadingMargin(
@@ -29,18 +27,29 @@ class OrderedListSpan(
         lineTop: Int, lineBaseline: Int, lineBottom: Int, text: CharSequence?, lineStart: Int,
         lineEnd: Int, isFirstLine: Boolean, layout: Layout?
     ) {
-        paint.forText {
-            canvas.drawText(order, gapWidth, lineBaseline.toFloat(), paint)
+        //only for first line draw order
+        if (isFirstLine){
+            paint.withCustomColor {
+                canvas.drawText(
+                    order.toString() ,
+                    currentMarginLocation.toFloat() + gapWidth,
+                    lineBaseline.toFloat(),
+                    paint
+                )
+            }
         }
     }
 
-    private inline fun Paint.forText(block: () -> Unit) {
-        val origColor = color
+    private inline fun Paint.withCustomColor(block: () -> Unit) {
+        val oldColor = color
+        val oldStyle = style
 
         color = orderColor
+        style = Paint.Style.FILL
 
         block()
 
-        color = origColor
+        color = oldColor
+        style = oldStyle
     }
 }

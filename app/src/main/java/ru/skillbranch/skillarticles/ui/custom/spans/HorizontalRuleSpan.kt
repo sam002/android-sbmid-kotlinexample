@@ -1,4 +1,4 @@
-package ru.skillbranch.skillarticles.markdown.spans
+package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -21,7 +21,6 @@ class HorizontalRuleSpan(
         end: Int,
         fm: Paint.FontMetricsInt?
     ): Int {
-        //TODO implement me
         return 0
     }
 
@@ -36,21 +35,23 @@ class HorizontalRuleSpan(
         bottom: Int,
         paint: Paint
     ) {
+
         paint.forLine {
             canvas.drawLine(
                 0f,
-                (top+bottom)/2f,
+                (top + y)/2f - paint.descent(),
                 canvas.width.toFloat(),
-                (top+bottom)/2f,
+                (top + y)/2f - paint.descent(),
                 paint
             )
         }
+
     }
 
     private inline fun Paint.forLine(block: () -> Unit) {
-        val origColor = color
-        val origStyle = style
-        val origWidth = strokeWidth
+        val oldColor = color
+        val oldStyle = style
+        val oldWidth = strokeWidth
 
         color = ruleColor
         style = Paint.Style.STROKE
@@ -58,8 +59,8 @@ class HorizontalRuleSpan(
 
         block()
 
-        color = origColor
-        style = origStyle
-        strokeWidth = origWidth
+        color = oldColor
+        style = oldStyle
+        strokeWidth = oldWidth
     }
 }

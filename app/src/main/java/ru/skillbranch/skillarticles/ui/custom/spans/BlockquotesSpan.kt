@@ -1,4 +1,4 @@
-package ru.skillbranch.skillarticles.markdown.spans
+package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -24,31 +24,31 @@ class BlockquotesSpan(
         paint.withCustomColor {
             canvas.drawLine(
                 quoteWidth/2f,
-                lineTop.toFloat(),
+                lineTop.toFloat() - paint.descent(),
                 quoteWidth/2f,
-                lineBottom.toFloat(),
+                lineBottom.toFloat() - paint.descent(),
                 paint
             )
         }
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return (quoteWidth+gapWidth).toInt()
+        return (quoteWidth + gapWidth).toInt()
     }
 
-
     private inline fun Paint.withCustomColor(block: () -> Unit) {
-        val origColor = color
-        val origStyle = style
-        val origStrokeWidth = strokeWidth
+        val oldColor = color
+        val oldStyle = style
+        val oldWidth = strokeWidth
 
         color = lineColor
-        style = Paint.Style.FILL
+        style = Paint.Style.STROKE
         strokeWidth = quoteWidth
+
         block()
 
-        color = origColor
-        style = origStyle
-        strokeWidth = origStrokeWidth
+        color = oldColor
+        style = oldStyle
+        strokeWidth = oldWidth
     }
 }

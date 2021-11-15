@@ -1,4 +1,4 @@
-package ru.skillbranch.skillarticles.markdown.spans
+package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -32,7 +32,7 @@ class InlineCodeSpan(
         fm: Paint.FontMetricsInt?
     ): Int {
         paint.forText {
-            val measureText = paint.measureText(text.toString(), start, end)
+            val measureText = paint.measureText(text.toString(),start, end)
             measureWidth = (measureText + 2*padding).toInt()
         }
         return measureWidth
@@ -49,43 +49,44 @@ class InlineCodeSpan(
         bottom: Int,
         paint: Paint
     ) {
+
         paint.forBackground {
-            rect.set(x, top.toFloat(), x+ measureWidth, bottom.toFloat())
-            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+            rect.set(x, top.toFloat(), x + measureWidth, y + paint.descent())
+            canvas.drawRoundRect(rect, cornerRadius,cornerRadius, paint)
         }
 
         paint.forText {
-            canvas.drawText(text, start, end, x+padding, y.toFloat(), paint)
+            canvas.drawText(text, start, end, x + padding, y.toFloat(), paint)
         }
     }
 
     private inline fun Paint.forText(block: () -> Unit) {
-        val origSyze = textSize
-        val origStyle = typeface?.style ?: 0
-        val origFont = typeface
-        val origColor = color
+        val oldSize = textSize
+        val oldStyle = typeface?.style ?: 0
+        val oldFont = typeface
+        val oldColor = color
 
         color = textColor
-        typeface = Typeface.create(Typeface.MONOSPACE, origStyle)
-        textSize *= 0.85f
+        typeface = Typeface.create(Typeface.MONOSPACE, oldStyle)
+        textSize *=0.85f
 
         block()
 
-        color = origColor
-        typeface = origFont
-        textSize = origSyze
+        color = oldColor
+        typeface = oldFont
+        textSize = oldSize
     }
 
     private inline fun Paint.forBackground(block: () -> Unit) {
-        val origColor = color
-        val origStyle = style
+        val oldColor = color
+        val oldStyle = style
 
         color = bgColor
         style = Paint.Style.FILL
 
         block()
 
-        color = origColor
-        style = origStyle
+        color = oldColor
+        style = oldStyle
     }
 }

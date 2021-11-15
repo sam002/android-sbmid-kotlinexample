@@ -1,4 +1,4 @@
-package ru.skillbranch.skillarticles.markdown.spans
+package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
 import android.graphics.DashPathEffect
@@ -6,26 +6,25 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.drawable.Drawable
 import android.text.style.ReplacementSpan
+import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import androidx.annotation.VisibleForTesting
+import java.security.cert.LDAPCertStoreParameters
 
 class IconLinkSpan(
     private val linkDrawable: Drawable,
-    @ColorInt
-    private val iconColor: Int,
     @Px
-    private val padding: Float,
+    private val gap: Float,
     @ColorInt
     private val textColor: Int,
     dotWidth: Float = 6f
 ) : ReplacementSpan() {
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    var iconSize = 0
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    var textWidth = 0f
+    private var iconSize = 0
+    private var textWidth = 0f
     private val dashs = DashPathEffect(floatArrayOf(dotWidth, dotWidth), 0f)
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var path = Path()
 
@@ -40,21 +39,21 @@ class IconLinkSpan(
         bottom: Int,
         paint: Paint
     ) {
-        val textStart = x + iconSize + padding
+        val textStart = x + iconSize + gap
+
         paint.forLine {
             path.reset()
-            path.moveTo(textStart, bottom.toFloat())
-            path.lineTo(textStart+textWidth, bottom.toFloat())
+            path.moveTo(textStart, bottom.toFloat() - paint.descent())
+            path.lineTo(textStart + textWidth, bottom.toFloat() - paint.descent())
             canvas.drawPath(path, paint)
         }
 
-        paint.forIcon {
-            canvas.save()
-            val trY = bottom - linkDrawable.bounds.bottom
-            canvas.translate(x, trY.toFloat())
-            linkDrawable.draw(canvas)
-            canvas.restore()
-        }
+        canvas.save()   //save canvas position
+
+        val transY = (y + paint.descent() - linkDrawable.bounds.bottom.toFloat())  //translate canvas to link position
+        canvas.translate(x + gap/2f, transY)
+        linkDrawable.draw(canvas)  //draw icon
+        canvas.restore()  //restore position
 
         paint.forText {
             canvas.drawText(text, start, end, textStart, y.toFloat(), paint)
@@ -71,51 +70,39 @@ class IconLinkSpan(
     ): Int {
         if (fm != null) {
             iconSize = fm.descent - fm.ascent
-            linkDrawable.setBounds(0,0,iconSize,iconSize)
-            linkDrawable.setTint(iconColor)
         }
-        textWidth = paint.measureText(text.toString(), start, end)
-        return (textWidth + padding + iconSize).toInt()
+        if (iconSize != 0) {
+            linkDrawable.setBounds(0, 0, iconSize, iconSize)    //set drawable bounds as line height
+            textWidth = paint.measureText(text.toString(), start, end)
+        }
+        return (iconSize + gap + textWidth).toInt()
     }
 
 
     private inline fun Paint.forLine(block: () -> Unit) {
-        val origColor = color
-        val origStyle = style
-        val origWidth = strokeWidth
+        val oldStyle = style
+        val oldWidth = strokeWidth
 
+        strokeWidth = 0f
+        style = Paint.Style.STROKE
         pathEffect = dashs
         color = textColor
-        style = Paint.Style.STROKE
-        strokeWidth = 0f
 
         block()
 
-        color = origColor
-        style = origStyle
-        strokeWidth = origWidth
+        //restore
+        pathEffect = null
+        strokeWidth = oldWidth
+        style = oldStyle
     }
 
     private inline fun Paint.forText(block: () -> Unit) {
-        val origColor = color
-
+        val oldColor = color
         color = textColor
 
         block()
 
-        color = origColor
-    }
-
-    private inline fun Paint.forIcon(block: () -> Unit) {
-        val origColor = color
-        val origStyle = style
-
-        color = textColor
-        style = Paint.Style.STROKE
-
-        block()
-
-        color = origColor
-        style = origStyle
+        //restore
+        color = oldColor
     }
 }
